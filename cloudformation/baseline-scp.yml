@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Baseline AWS Organizations SCP for governance demo
+
+Parameters:
+  TargetId:
+    Type: String
+    Description: Root, OU, or AWS account ID where the SCP will be attached
+  PolicyName:
+    Type: String
+    Default: baseline-governance-scp
+    Description: Name of the SCP
+
+Resources:
+  BaselineSCP:
+    Type: AWS::Organizations::Policy
+    Properties:
+      Name: !Ref PolicyName
+      Description: Prevent member accounts from leaving the organization
+      Type: SERVICE_CONTROL_POLICY
+      TargetIds:
+        - !Ref TargetId
+      Content:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyLeavingOrganization
+            Effect: Deny
+            Action:
+              - organizations:LeaveOrganization
+            Resource: "*"
+
+Outputs:
+  PolicyId:
+    Description: ID of the created SCP
+    Value: !Ref BaselineSCP
